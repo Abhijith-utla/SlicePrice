@@ -118,7 +118,7 @@ def menu_sentiment_card() -> rx.Component:
 @template(route="/competitor", title="Competitor Analysis")
 def competitor() -> rx.Component:
     return rx.vstack(
-        rx.heading("Restaurant Sentiment Analysis", size="5", margin_bottom="1em"),
+        rx.heading("Restaurant Sentiment Analysis", size="8", margin_bottom="1em"),
 
         rx.grid(
             chart_card("Top Restaurant Rankings by Positive Sentiment", bar_vertical(restaurant_chart_data)),
