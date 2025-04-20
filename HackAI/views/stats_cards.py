@@ -1,26 +1,33 @@
 import reflex as rx
+import pandas as pd
 from reflex.components.radix.themes.base import LiteralAccentColor
 
+# Load and process data
+itemsales_2024 = pd.read_csv("HackAI/data/itemsales_2024.csv")
+itemsales_2024["Total Sales"] = itemsales_2024["Total Sales"].replace(r'[\$,]', '', regex=True).astype(float)
 
+combined_df = pd.read_csv("HackAI/data/combined_df.csv")
+combined_df["Date"] = pd.to_datetime(combined_df["Date"])
+combined_df["DayOfWeek"] = combined_df["Date"].dt.day_name()
+combined_df["Hour"] = combined_df["Date"].dt.hour
 
+# Metric 1: Most Profitable Day
+most_profitable_day = combined_df.groupby("DayOfWeek")["Net Sales"].sum().sort_values(ascending=False).idxmax()
+
+# Metric 2: Top-selling item in 2024
+top_item_name = itemsales_2024.sort_values("Total Sales", ascending=False).iloc[0]["Item"]
+
+# Metric 3: Peak Sales Hour
+top_hour = combined_df.groupby("Hour")["Net Sales"].sum().idxmax()
+peak_sales_hour = pd.to_datetime(str(top_hour), format="%H").strftime("%I:00 %p")
+
+# Card generator
 def stats_card(
     stat_name: str,
-    value: int,
-    prev_value: int,
+    value: str,
     icon: str,
     icon_color: LiteralAccentColor,
-    extra_char: str = "",
 ) -> rx.Component:
-    percentage_change = (
-        round(((value - prev_value) / prev_value) * 100, 2)
-        if prev_value != 0
-        else 0
-        if value == 0
-        else float("inf")
-    )
-    change = "increase" if value > prev_value else "decrease"
-    arrow_icon = "trending-up" if value > prev_value else "trending-down"
-    arrow_color = "grass" if value > prev_value else "tomato"
     return rx.card(
         rx.vstack(
             rx.hstack(
@@ -32,7 +39,7 @@ def stats_card(
                 ),
                 rx.vstack(
                     rx.heading(
-                        f"{extra_char}{value:,}",
+                        value,
                         size="6",
                         weight="bold",
                     ),
@@ -47,62 +54,40 @@ def stats_card(
                 align="center",
                 width="100%",
             ),
-            rx.hstack(
-                rx.hstack(
-                    rx.icon(
-                        tag=arrow_icon,
-                        size=24,
-                        color=rx.color(arrow_color, 9),
-                    ),
-                    rx.text(
-                        f"{percentage_change}%",
-                        size="3",
-                        color=rx.color(arrow_color, 9),
-                        weight="medium",
-                    ),
-                    spacing="2",
-                    align="center",
-                ),
-                rx.text(
-                    f"{change} from last month",
-                    size="2",
-                    color=rx.color("gray", 10),
-                ),
-                align="center",
-                width="100%",
-            ),
             spacing="3",
-            align="center"
+            align="center",
         ),
         size="3",
         width="100%",
         box_shadow="0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
     )
 
-
+# Main stat card grid
 def stats_cards() -> rx.Component:
     return rx.grid(
         stats_card(
-            stat_name="Net Income",
-            value=12000,
-            prev_value=15000,
-            icon="dollar-sign",
-            icon_color="green",
-            extra_char="$",
+            stat_name="Most Profitable Day",
+            value=most_profitable_day,
+            icon="calendar",
+            icon_color="pink",
         ),
         stats_card(
-            stat_name="Orders",
-            value=300,
-            prev_value=250,
-            icon="shopping-cart",
-            icon_color="purple",
+            stat_name="Top-Selling Item",
+            value=top_item_name,
+            icon="star",
+            icon_color="amber",
+        ),
+        stats_card(
+            stat_name="Peak Sales Hour",
+            value=peak_sales_hour,
+            icon="clock",
+            icon_color="cyan",
         ),
         gap="1rem",
         grid_template_columns=[
             "1fr",
             "repeat(1, 1fr)",
             "repeat(2, 1fr)",
-            "repeat(3, 1fr)",
             "repeat(3, 1fr)",
         ],
         width="100%",
