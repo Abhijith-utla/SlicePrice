@@ -1,10 +1,6 @@
 .states
-assets/external/
-*.db
-*.py[cod]
-.cursorignore
-.venv/
-.vscode/
 .web
+*.db
+assets/external/
+*.py[cod]
 __pycache__/
-venv/

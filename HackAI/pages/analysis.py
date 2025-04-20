@@ -8,22 +8,12 @@ from ..views.sales_by_time import sales_by_time_chart
 from ..views.charts import (
     StatsState,
     area_toggle,
-    orders_chart,
-    revenue_chart,
-    timeframe_select,
-    users_chart,
-    top_items_pie_chart,  # <-- add this
-)
-from ..views.stats_cards import stats_cards
-from ..views.charts import (
-    StatsState,
-    area_toggle,
-    orders_chart,
-    revenue_chart,
-    timeframe_select,
-    users_chart,
+    yearly_forecast_graph,
+    monthly_forecast_graph,
+    daily_forecast_graph,
     top_items_pie_chart,
 )
+from ..views.stats_cards import stats_cards
 
 
 def _time_data() -> rx.Component:
@@ -49,36 +39,42 @@ def tab_content_header() -> rx.Component:
     )
 
 
-@template(route="/analysis", title="Store Analysis", on_load=StatsState.randomize_data)
+@template(route="/analysis", title="Store Analysis")
 def analysis() -> rx.Component:
     """The analysis page.
 
     Returns:
         The UI for the analysis page.
     """
+    # We don't need to call _generate_sample_data since we're initializing directly
+    # Removing this line: StatsState._generate_sample_data()
+    
     return rx.vstack(
         rx.heading(f"Welcome, Your Store Analysis", size="5"),
         stats_cards(),
-        # Existing charts card
+        # Forecast charts card
         card(
             rx.hstack(
                 tab_content_header(),
                 rx.segmented_control.root(
-                    rx.segmented_control.item("Users", value="users"),
-                    rx.segmented_control.item("Revenue", value="revenue"),
-                    rx.segmented_control.item("Orders", value="orders"),
+                    rx.segmented_control.item("Daily", value="daily"),
+                    rx.segmented_control.item("Monthly", value="monthly"),
+                    rx.segmented_control.item("Yearly", value="yearly"),
                     margin_bottom="1.5em",
-                    default_value="users",
+                    default_value="daily",
                     on_change=StatsState.set_selected_tab,
                 ),
                 width="100%",
                 justify="between",
             ),
-            rx.match(
-                StatsState.selected_tab,
-                ("users", users_chart()),
-                ("revenue", revenue_chart()),
-                ("orders", orders_chart()),
+            rx.cond(
+                StatsState.selected_tab == "daily",
+                daily_forecast_graph(),
+                rx.cond(
+                    StatsState.selected_tab == "monthly",
+                    monthly_forecast_graph(),
+                    yearly_forecast_graph(),
+                ),
             ),
         ),
         
@@ -131,3 +127,6 @@ def analysis() -> rx.Component:
         spacing="8",
         width="100%",
     )
+
+#this is a test
+
