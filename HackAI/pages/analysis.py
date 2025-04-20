@@ -22,7 +22,6 @@ def _time_data() -> rx.Component:
             rx.icon("info", size=20),
             content=f"{(datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%b %d, %Y')} - {datetime.datetime.now().strftime('%b %d, %Y')}",
         ),
-        rx.text("Last 30 days", size="4", weight="medium"),
         align="center",
         spacing="2",
         display=["none", "none", "flex"],
@@ -32,7 +31,7 @@ def _time_data() -> rx.Component:
 def tab_content_header() -> rx.Component:
     return rx.hstack(
         _time_data(),
-        area_toggle(),
+        
         align="center",
         width="100%",
         spacing="4",
@@ -81,16 +80,6 @@ def analysis() -> rx.Component:
         rx.grid(
             card(
                 rx.hstack(
-                    rx.icon("clock", size=20),
-                    rx.text("Sales by Time of Day", size="4", weight="medium"),
-                    align="center",
-                    spacing="2",
-                    margin_bottom="2.5em",
-                ),
-                sales_by_time_chart(),
-            ),
-            card(
-                rx.hstack(
                     rx.hstack(
                         rx.icon("bar-chart", size=20),
                         rx.text("Top 6 Most Sold Items", size="4", weight="medium"),
@@ -118,9 +107,9 @@ def analysis() -> rx.Component:
             grid_template_columns=[
                 "1fr",
                 "repeat(1, 1fr)",
-                "repeat(2, 1fr)",
-                "repeat(2, 1fr)",
-                "repeat(2, 1fr)",
+                "repeat(1, 1fr)",
+                "repeat(1, 1fr)",
+                "repeat(1, 1fr)",
             ],
             width="100%",
         ),
